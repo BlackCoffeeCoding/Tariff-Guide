@@ -1,0 +1,60 @@
+CREATE TABLE "Дорога" (
+    "Код дороги" INTEGER NOT NULL,
+    "Название дороги" VARCHAR (50) NOT NULL UNIQUE,
+    "Адрес" VARCHAR (100) NOT NULL,
+    CONSTRAINT дорога_pk PRIMARY KEY ("Код дороги")
+);
+CREATE TABLE "ТранзитныйПункт" (
+    "№ ТП" INTEGER NOT NULL CHECK("№ ТП" >= 0),
+    "Название ТП" VARCHAR (50) NOT NULL UNIQUE,
+    "Название дороги" VARCHAR (50) NOT NULL,
+    CONSTRAINT транзитныйпункт_pk PRIMARY KEY ("№ ТП"),
+    CONSTRAINT дорога_транзитныйпункт_fk FOREIGN KEY ("Название дороги") REFERENCES "Дорога" ("Название дороги") ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE TABLE "Участок" (
+    "id участка" INTEGER NOT NULL CHECK("id участка" >= 0),
+    "Название участка" VARCHAR (50) NOT NULL UNIQUE,
+    "Название дороги" VARCHAR (50) NOT NULL,
+    CONSTRAINT участок_pk PRIMARY KEY ("id участка"),
+    CONSTRAINT дорога_участок_fk FOREIGN KEY ("Название дороги") REFERENCES "Дорога" ("Название дороги") ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE TABLE "РасстояниеТпТп" (
+    "id ТП-ТП" INTEGER NOT NULL,
+    "№ ТП от" INTEGER NOT NULL,
+    "№ ТП до" INTEGER NOT NULL,
+    "Расстояние" INTEGER NOT NULL,
+    CONSTRAINT расстояниетптп_pk PRIMARY KEY ("id ТП-ТП"),
+    CONSTRAINT транзитный_расстояние_fk FOREIGN KEY ("№ ТП от") REFERENCES "ТранзитныйПункт" ("№ ТП") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT транзитный_расстояние_fk_1 FOREIGN KEY ("№ ТП до") REFERENCES "ТранзитныйПункт" ("№ ТП") ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE TABLE "Станция" (
+    "Код станции" INTEGER NOT NULL CHECK("Код станции" >= 0),
+    "Название станции" VARCHAR (50) NOT NULL UNIQUE,
+    "Название дороги" VARCHAR (50) NOT NULL,
+    "Параграф" VARCHAR (30) NOT NULL,
+    "Страница Тр4т1" VARCHAR (20) NOT NULL,
+    "Строка Тр4т1" VARCHAR (20) NOT NULL,
+    CONSTRAINT станция_pk PRIMARY KEY ("Код станции"),
+    CONSTRAINT дорога_станция_fk FOREIGN KEY ("Название дороги") REFERENCES "Дорога" ("Название дороги") ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE TABLE "РасстояниеСтТп" (
+    "id СТ-ТП" INTEGER NOT NULL,
+    "Код станции" INTEGER NOT NULL,
+    "№ ТП" INTEGER NOT NULL,
+    "Расстояние" INTEGER NOT NULL,
+    CONSTRAINT расстояниесттп_pk PRIMARY KEY ("id СТ-ТП"),
+    CONSTRAINT станция_расстояниесттп_fk FOREIGN KEY ("Код станции") REFERENCES "Станция" ("Код станции") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT транзитный_расстояние_fk_2 FOREIGN KEY ("№ ТП") REFERENCES "ТранзитныйПункт" ("№ ТП") ON UPDATE CASCADE ON DELETE CASCADE
+);
+CREATE TABLE "СтанцияУчасток" (
+    "id станции-участка" INTEGER NOT NULL CHECK("id станции-участка" >= 0),
+    "Код станции" INTEGER NOT NULL,
+    "Название станции" VARCHAR (50) NOT NULL,
+    "id участка" INTEGER NOT NULL,
+    "Название участка" VARCHAR (50) NOT NULL,
+    CONSTRAINT станцияучасток_pk PRIMARY KEY ("id станции-участка"),
+    CONSTRAINT участок_станцияучасток_fk FOREIGN KEY ("id участка") REFERENCES "Участок" ("id участка") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT станция_станцияучасток_fk FOREIGN KEY ("Код станции") REFERENCES "Станция" ("Код станции") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT участок_станцияучасток_fk_1 FOREIGN KEY ("Название участка") REFERENCES "Участок" ("Название участка") ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT станция_станцияучасток_fk_1 FOREIGN KEY ("Название станции") REFERENCES "Станция" ("Название станции") ON UPDATE CASCADE ON DELETE CASCADE
+);
